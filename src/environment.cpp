@@ -239,7 +239,7 @@ int main (int argc, char** argv)
             streamIterator++;
             if(streamIterator == stream.end())
                 streamIterator = stream.begin();
-            usleep(100000);
+            //usleep(100000);
             viewer->spinOnce ();
 
         }
@@ -263,7 +263,7 @@ int main (int argc, char** argv)
             streamIterator++;
             if(streamIterator == stream.end())
                 streamIterator = stream.begin();
-            usleep(100000);
+            //usleep(100000);
             viewer->spinOnce ();
 
         }
