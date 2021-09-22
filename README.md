@@ -1,4 +1,4 @@
-# Sensor Fusion Self-Driving Car Course
+# Sensor Fusion Self-Driving Car Course Lidar Obstacle Detection
 
 
 ## Dependencies
