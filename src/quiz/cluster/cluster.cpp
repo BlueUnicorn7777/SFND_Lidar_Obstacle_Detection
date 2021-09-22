@@ -17,8 +17,8 @@ pcl::visualization::PCLVisualizer::Ptr initScene(Box window, int zoom)
   	viewer->initCameraParameters();
   	viewer->setCameraPosition(0, 0, zoom, 0, 1, 0);
   	viewer->addCoordinateSystem (1.0);
-
-  	viewer->addCube(window.x_min, window.x_max, window.y_min, window.y_max, 0, 0, 1, 1, 1, "window");
+    viewer->addCube(window.x_min, window.x_max, window.y_min, window.y_max, 0, 0, 1, 1, 1, "window");
+    viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, "window");
   	return viewer;
 }
 
@@ -75,13 +75,43 @@ void render2DTree(Node* node, pcl::visualization::PCLVisualizer::Ptr& viewer, Bo
 
 }
 
+void clusterHelper(int indice, std::vector<std::vector<float>> points, std::vector<int> &cluster, std::vector<bool> &processed, KdTree *tree, float distanceTol)
+{
+    processed[indice] = true;
+    cluster.push_back(indice);
+
+    std::vector<int> nearest = tree->search(points[indice], distanceTol);
+    for (int id : nearest)
+    {
+        if (processed[id] == false)
+            clusterHelper(id, points, cluster, processed, tree, distanceTol);
+    }
+}
+
 std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<float>>& points, KdTree* tree, float distanceTol)
 {
 
 	// TODO: Fill out this function to return list of indices for each cluster
 
 	std::vector<std::vector<int>> clusters;
- 
+
+    std::vector<bool> processed(points.size(), false);
+
+        int i = 0;
+        while (i < points.size())
+        {
+            if(processed[i])
+            {
+                i++;
+                continue;
+            }
+
+            std::vector<int> cluster;
+            clusterHelper(i, points, cluster, processed, tree, distanceTol);
+            clusters.push_back(cluster);
+            i++;
+        }
+
 	return clusters;
 
 }
@@ -136,7 +166,9 @@ int main ()
   		for(int indice: cluster)
   			clusterCloud->points.push_back(pcl::PointXYZ(points[indice][0],points[indice][1],0));
   		renderPointCloud(viewer, clusterCloud,"cluster"+std::to_string(clusterId),colors[clusterId%3]);
+
   		++clusterId;
+
   	}
   	if(clusters.size()==0)
   		renderPointCloud(viewer,cloud,"data");
